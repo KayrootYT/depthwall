@@ -1,0 +1,53 @@
+
+name: Build Depth Wallpaper APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'DepthWallpaper-Pro-Free-v4.1-repaired-1.zip'
+      - '.github/workflows/build-apk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract latest project ZIP
+        run: |
+          unzip -q DepthWallpaper-Pro-Free-v4.1-repaired-1.zip -d extracted
+          test -f extracted/DepthWallpaper/settings.gradle.kts
+          test -f extracted/DepthWallpaper/app/build.gradle.kts
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build Debug APK
+        working-directory: extracted/DepthWallpaper
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Run unit tests
+        working-directory: extracted/DepthWallpaper
+        run: gradle testDebugUnitTest --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DepthWallpaper-APK
+          path: extracted/DepthWallpaper/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
