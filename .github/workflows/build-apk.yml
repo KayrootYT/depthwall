@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'DepthWallpaper-Pro-Free-v4.1-repaired-1.zip'
+      - 'DepthWallpaper-Pro-Free-v4.1-repaired.zip'
       - '.github/workflows/build-apk.yml'
 
 permissions:
@@ -19,9 +19,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract latest project ZIP
+      - name: Check ZIP exists
         run: |
-          unzip -q DepthWallpaper-Pro-Free-v4.1-repaired-1.zip -d extracted
+          ls -lah
+          test -f "DepthWallpaper-Pro-Free-v4.1-repaired.zip"
+
+      - name: Extract Android project
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          unzip -q "DepthWallpaper-Pro-Free-v4.1-repaired.zip" -d extracted
+          echo "Extracted files:"
+          find extracted -maxdepth 3 -type f | head -100
           test -f extracted/DepthWallpaper/settings.gradle.kts
           test -f extracted/DepthWallpaper/app/build.gradle.kts
 
@@ -41,10 +50,12 @@ jobs:
         run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Run unit tests
+        if: success()
         working-directory: extracted/DepthWallpaper
         run: gradle testDebugUnitTest --no-daemon
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: DepthWallpaper-APK
