@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'DepthWallpaper-Pro-Free-v4.1-fixed2.zip'
+      - 'DepthWallpaper-Pro-Free-v4_2-fixed.zip'
       - '.github/workflows/build-apk.yml'
 
 permissions:
@@ -21,13 +21,13 @@ jobs:
       - name: Check ZIP exists
         run: |
           ls -lah
-          test -f "DepthWallpaper-Pro-Free-v4.1-fixed2.zip"
+          test -f "DepthWallpaper-Pro-Free-v4_2-fixed.zip"
 
       - name: Extract Android project
         run: |
           sudo apt-get update
           sudo apt-get install -y unzip
-          unzip -q "DepthWallpaper-Pro-Free-v4.1-fixed2.zip" -d extracted
+          unzip -q "DepthWallpaper-Pro-Free-v4_2-fixed.zip" -d extracted
           test -f extracted/DepthWallpaper/settings.gradle.kts
           test -f extracted/DepthWallpaper/app/build.gradle.kts
           echo "Project extracted successfully"
